@@ -1,3 +1,4 @@
+console.log("--- ¡HOLA! ESTOY EJECUTANDO EL SERVIDOR CORRECTO ---");
 // --- IMPORTACIONES DE MÓDULOS ---
 require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
 const logger = require('./logger');
@@ -35,7 +36,17 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Aplica cabeceras de seguridad HTTP básicas
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      "script-src-elem": ["'self'", "https://cdn.socket.io", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      "worker-src": ["'self'", "blob:"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+      "style-src-elem": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+      "font-src": ["'self'", "https://fonts.gstatic.com"],
+    },
+  },
+}));
 
 // --- CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS Y DIRECTORIOS ---
 
@@ -47,6 +58,9 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Sirve los archivos subidos de forma estática en la ruta /uploads
 app.use('/uploads', express.static(uploadsDir));
+
+// Sirve los archivos del frontend (ubicados en el directorio padre)
+app.use(express.static(path.join(__dirname, '../')));
 
 // --- CONFIGURACIÓN DEL SERVIDOR Y SOCKET.IO ---
 const server = http.createServer(app);
@@ -190,6 +204,7 @@ const loginLimiter = rateLimit({
         
 
 
+
 /**
  * POST /api/login
  * Autentica a un usuario y devuelve un token JWT si las credenciales son correctas.
@@ -228,7 +243,7 @@ const loginLimiter = rateLimit({
                     const staffResult = await getPool().query`SELECT *, en_carrusel as showInCarousel FROM Personal`;
                     const staffData = staffResult.recordset;
 
-                    res.json({ 
+                    res.json({
                         message: 'Login exitoso.',
                         user: tokenPayload,
                         staff: staffData
@@ -809,11 +824,6 @@ const loginLimiter = rateLimit({
             }
         });
 
-
-// --- SERVIDOR ESTÁTICO Y ARRANQUE ---
-
-// Sirve los archivos del frontend (ubicados en el directorio padre)
-app.use(express.static(path.join(__dirname, '../')));
 
 // --- ARRANQUE DEL SERVIDOR ---
 const port = process.env.PORT || 3000;
