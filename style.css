@@ -1,0 +1,648 @@
+/* ====================================================================
+   Hoja de Estilos Principal (v2.1 con mejoras de diseño de administrador)
+   ====================================================================
+   Índice:
+   1. VARIABLES GLOBALES Y TEMAS
+   2. ESTILOS GENERALES Y TIPOGRAFÍA
+   3. PÁGINA PÚBLICA (index.html)
+   4. PÁGINA DE ADMINISTRACIÓN (admin.html)
+   5. COMPONENTES REUTILIZABLES (Cards, Modals, etc.)
+   6. CLASES DE UTILIDAD PARA ANIMACIONES
+/* ==================================================================== */
+
+/* ==========================================
+   1. VARIABLES GLOBALES Y TEMAS
+   ========================================== */
+:root {
+    --primary-color: #8c1919; /* Rojo UNIS */
+    --secondary-color: #6c757d; /* Gris oscuro neutro */
+    --background-color: #f8f9fa; /* Gris muy claro */
+    --surface-color: #ffffff; /* Blanco para superficies como cards */
+    --text-color: #212529; /* Negro suave */
+    --border-color: #dee2e6; /* Gris claro para bordes */
+    --accent-yellow: #dab845;
+
+    --font-primary: 'Roboto', sans-serif;
+    --font-secondary: 'Merriweather', serif;
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+    --border-radius: 0.75rem;
+
+    --bs-primary-rgb: 140, 25, 25;
+}
+
+/* Tema Oscuro */
+body.dark-theme {
+    --primary-color: #dab845; /* Amarillo principal */
+    --secondary-color: #adb5bd; 
+    --background-color: #121212; /* Fondo negro real */
+    --surface-color: #1e1e1e; /* Gris oscuro para superficies */
+    --text-color: #e9ecef; 
+    --border-color: #495057;
+}
+
+/* ==========================================
+   2. ESTILOS GENERALES Y TIPOGRAFÍA
+   ========================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    -webkit-transition: background-color 0.3s ease, color 0.3s ease;
+    -moz-transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+}
+
+body.admin-page {
+    background-color: #e9ecef;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-secondary);
+    font-weight: 700;
+}
+
+/* ==========================================
+   3. PÁGINA PÚBLICA (index.html)
+   ========================================== */
+
+/* --- Encabezado y Búsqueda --- */
+.public-page header {
+    background: -webkit-linear-gradient(135deg, var(--primary-color), #a82a2a);
+    background: -moz-linear-gradient(135deg, var(--primary-color), #a82a2a);
+    background: linear-gradient(135deg, var(--primary-color), #a82a2a);
+    color: #fff;
+    border-bottom: 5px solid var(--accent-yellow);
+    opacity: 0; /* Estado inicial para animación */
+    -webkit-transform: translateY(-50px); /* Estado inicial para animación */
+    -ms-transform: translateY(-50px); /* Estado inicial para animación */
+    transform: translateY(-50px); /* Estado inicial para animación */
+}
+
+.public-page #searchInput {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+
+.public-page #searchInput::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.public-page #searchInput:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 0.25rem rgba(255,255,255, 0.25);
+}
+
+.header-image {
+    position: absolute;
+    bottom: 5px;
+    right: 0%;
+    transform: translateY(50%);
+    z-index: -0;
+}
+
+/* --- Carrusel y Bienvenida --- */
+.welcome-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.welcome-title {
+    font-family: var(--font-secondary);
+    font-size: 1.75rem;
+    color: var(--primary-color);
+}
+
+#staffCarousel {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    background-color: var(--surface-color);
+    padding: 1.5rem;
+}
+
+.carousel-content {
+    text-align: center; /* Center block-level children */
+    min-height: 150px;
+}
+
+.carousel-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--background-color);
+    flex-shrink: 0;
+    margin: 0 auto; /* Added for horizontal centering */
+}
+
+.carousel-caption {
+    position: static;
+    text-align: center;
+    padding: 0;
+    color: var(--text-color);
+}
+
+.carousel-caption h5 {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.new-hire-badge {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(var(--bs-primary-rgb), 0.7);
+    border-radius: 50%;
+    padding: 1.2rem;
+    background-size: 50%;
+}
+
+.important-info-card {
+    background-color: var(--surface-color);
+    border: none;
+    border-left: 5px solid var(--primary-color);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.important-info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.important-info-card .card-body {
+    padding: 1.5rem;
+}
+
+.important-info-card .card-title {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.important-info-card .card-title .alert-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-right: 0.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238c1919' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-alert-circle'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    animation: none; /* Remove the old blink animation */
+}
+
+.important-info-card .list-group-item {
+    border: none;
+    padding: 0.75rem 0;
+}
+
+/* --- Cumpleaños --- */
+.birthday-container-full-width {
+    background-color: var(--accent-yellow);
+    color: #000000;
+    padding: 0.1rem 0; /* Reducido para ser más compacto */
+    overflow: hidden;
+    position: relative;
+    opacity: 0; /* Inicialmente invisible */
+    -webkit-transition: opacity 0.5s ease-in-out; /* Transición suave para la opacidad */
+    -moz-transition: opacity 0.5s ease-in-out; /* Transición suave para la opacidad */
+    transition: opacity 0.5s ease-in-out; /* Transición suave para la opacidad */
+    
+}
+
+.birthday-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 3rem; /* Reducido para juntar los nombres */
+    width: max-content;
+    -webkit-animation: scroll-left 30s linear infinite;
+    -moz-animation: scroll-left 30s linear infinite;
+    animation: scroll-left 30s linear infinite;
+}
+
+@-webkit-keyframes scroll-left {
+    from { -webkit-transform: translateX(0%); }
+    to { -webkit-transform: translateX(-50%); }
+}
+@-moz-keyframes scroll-left {
+    from { -moz-transform: translateX(0%); }
+    to { -moz-transform: translateX(-50%); }
+}
+@keyframes scroll-left {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
+}
+
+.list-view .table-responsive {
+    overflow-x: auto; /* Ensure horizontal scrolling for the table */
+}
+
+.list-view .table {
+    width: 100%; /* Make sure the table takes full width of its container */
+}
+
+.list-view .table th,
+.list-view .table td {
+    word-break: break-word; /* Allow long words to break and wrap */
+    white-space: normal; /* Ensure text wraps naturally within cells */
+}
+
+.list-view .table th:nth-child(1),
+.list-view .table td:nth-child(1) {
+    min-width: 60px; /* Photo column */
+}
+
+.list-view .table th:nth-child(2),
+.list-view .table td:nth-child(2) {
+    min-width: 150px; /* Nombre column */
+}
+
+.list-view .table th:nth-child(3),
+.list-view .table td:nth-child(3) {
+    min-width: 150px; /* Puesto column */
+}
+
+.list-view .table th:nth-child(4),
+.list-view .table td:nth-child(4) {
+    min-width: 120px; /* Departamento column */
+}
+
+.list-view .table th:nth-child(5),
+.list-view .table td:nth-child(5) {
+    min-width: 80px; /* Extensión column */
+}
+
+.list-view .table th:nth-child(6),
+.list-view .table td:nth-child(6) {
+    min-width: 200px; /* Correo column */
+}
+
+.birthday-person {
+    background-color: #ffe0e0; /* Light pink for birthday persons */
+}
+
+/* ==========================================
+   4. PÁGINA DE ADMINISTRACIÓN (admin.html)
+   ========================================== */
+
+/* --- Login --- */
+#auth-container {
+    display: flex;
+    background: #343a40;
+}
+
+#auth-container .card {
+    border: 1px solid var(--border-color);
+}
+
+/* --- Dashboard --- */
+#admin-dashboard {
+    display: none; /* Oculto por defecto */
+    flex-direction: row;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* --- Sidebar --- */
+#sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #2c3e50, #34495e);
+    color: #fff;
+    box-shadow: 5px 0px 15px rgba(0,0,0,0.1);
+    -webkit-transition: width 0.3s ease;
+    -moz-transition: width 0.3s ease;
+    transition: width 0.3s ease;
+}
+
+#sidebar .sidebar-header {
+    border-bottom: 1px solid #4f6a85;
+}
+
+#sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 0.5rem;
+    margin: 0.25rem 0;
+    -webkit-transition: background-color 0.2s ease, color 0.2s ease;
+    -moz-transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#sidebar .nav-link:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+#sidebar .nav-link.active {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: 500;
+}
+
+/* --- Main Content --- */
+#main-content-area {
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color: var(--background-color);
+    padding: 2rem;
+}
+
+.content-section {
+    /* display: none; JS se encarga de esto */
+}
+
+/* ==========================================
+   5. COMPONENTES REUTILIZABLES
+   ========================================== */
+
+/* --- Tarjetas --- */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    -webkit-transition: transform 0.3s ease, box-shadow 0.3s ease;
+    -moz-transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    -webkit-transform: scale(1); /* Asegura que la escala final sea 1 */
+    -ms-transform: scale(1); /* Asegura que la escala final sea 1 */
+    transform: scale(1); /* Asegura que la escala final sea 1 */
+    
+}
+
+#directory-grid .col {
+    -webkit-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+    /* will-change: transform, opacity; /* Eliminado: Causa de sobreconsumo de memoria. */
+}
+
+/* .card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+} */
+/* Hover effect now handled by Anime.js in script.js */
+
+.card-img-top {
+    height: 150px; /* Adjusted height for a better circular appearance */
+    width: 150px;  /* Added width to ensure it's a circle */
+    object-fit: cover;
+    border-radius: 50%; /* Make it circular */
+    margin: 1rem auto 0.5rem auto; /* Center the image and add some margin */
+    border: 3px solid var(--primary-color); /* Add a subtle border */
+    box-shadow: var(--shadow-sm); /* Add a subtle shadow */
+}
+
+.card-title {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+#directory-grid .card-body h5 {
+    margin-bottom: 0.5rem;
+}
+
+#directory-grid .card-body p {
+    margin-bottom: 0.25rem;
+}
+
+.card-footer {
+    background-color: var(--surface-color);
+    border-top: 1px solid var(--border-color);
+}
+
+/* --- Modales --- */
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--shadow-lg);
+    background-color: var(--surface-color);
+}
+
+.modal-header {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-bottom: 1px solid #6d0c0c;
+}
+
+.modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* --- Formularios y Botones --- */
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    background-color: var(--surface-color);
+}
+
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    -webkit-transition: all 0.2s ease-in-out;
+    -moz-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    -webkit-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   6. CLASES DE UTILIDAD PARA ANIMACIONES
+   ========================================== */
+
+/* Ocultar elementos para prepararlos para la animación */
+.anime-hidden {
+    opacity: 0;
+}
+
+.anime-fade-in-up {
+    opacity: 0;
+    -webkit-transform: translateY(20px);
+    -ms-transform: translateY(20px);
+    transform: translateY(20px);
+    -webkit-transition: opacity 0.6s ease, transform 0.6s ease;
+    -moz-transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.anime-fade-in-up.is-visible {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    -ms-transform: translateY(0);
+    transform: translateY(0);
+}
+
+#directory-grid tbody tr {
+    /* will-change: transform, opacity; */
+}
+
+.is-animating-header {
+    will-change: transform, opacity;
+}
+
+/* ==========================================
+   7. ESTILOS PARA LA PANTALLA DE CARGA
+   ========================================== */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #222; /* Fondo oscuro */
+    color: #fff; /* Texto blanco */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    z-index: 9999;
+    opacity: 1;
+    -webkit-transition: opacity 1s ease-out;
+    -moz-transition: opacity 1s ease-out;
+    transition: opacity 1s ease-out;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loading-content {
+    max-width: 800px;
+    padding: 2rem;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente para el contenido */
+}
+
+.loading-content h1 {
+    font-family: var(--font-secondary);
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--accent-yellow); /* Color de acento para el título */
+}
+
+.loading-content p {
+    font-family: var(--font-primary);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.loading-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* --- Animación de Alerta --- */
+.alert-icon {
+  -webkit-animation: blink 1s infinite alternate;
+  -moz-animation: blink 1s infinite alternate;
+  animation: blink 1s infinite alternate;
+}
+
+@-webkit-keyframes blink {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+@-moz-keyframes blink {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+@keyframes blink {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+
+/* --- Carrusel Hover Effect --- */
+.carousel-item .carousel-content {
+    -webkit-transition: transform 0.3s ease, box-shadow 0.3s ease;
+    -moz-transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carousel-item .carousel-content:hover {
+    -webkit-transform: scale(1.05);
+    -ms-transform: scale(1.05);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #ff00ff;
+}
+
+/* --- Estilos para la nueva vista de tabla --- */
+.custom-table thead {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-family: var(--font-secondary);
+}
+
+.custom-table th {
+    padding: 1rem;
+}
+
+.custom-table tbody tr:nth-of-type(odd) {
+    background-color: rgba(0,0,0,0.02);
+}
+
+.custom-table .list-view-img {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+}
+
+.custom-table .list-view-img-placeholder {
+    width: 45px;
+    height: 45px;
+}
+
+.custom-table td {
+    vertical-align: middle;
+}
+
+.table-responsive {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
