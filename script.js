@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- CONSTANTES Y ELEMENTOS DEL DOM ---
-    const BASE_URL = 'http://localhost:8080';
+    const BASE_URL = '';
     const directoryGrid = document.getElementById('directory-grid');
     const searchInput = document.getElementById('searchInput');
     const gridViewBtn = document.getElementById('grid-view-btn');

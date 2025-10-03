@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- CONSTANTES Y ELEMENTOS DEL DOM ---
-    const BASE_URL = 'http://localhost:8080';
+    const BASE_URL = '';
     const API_URLS = {
         PERSONAL: `${BASE_URL}/api/personal`,
         DEPARTMENTS: `${BASE_URL}/api/departments`,
@@ -87,6 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
         navLinks.forEach(link => {
             link.classList.toggle('active', link.getAttribute('href') === `#${sectionId.replace('-section', '')}`);
         });
+
+        if (sectionId === 'manage-departments-section') {
+            fetchDepartments();
+        } else if (sectionId === 'manage-important-info-section') {
+            fetchImportantInfo();
+        }
     };
 
     navLinks.forEach(link => {
@@ -125,12 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showLoginPage = () => {
         stopTokenRefresh();
-        authContainer.style.display = 'block';
+        authContainer.classList.remove('d-none');
         adminDashboard.style.display = 'none';
     };
 
     const showDashboard = async (initialStaffData = null) => {
-        authContainer.style.display = 'none';
+        authContainer.classList.add('d-none');
         adminDashboard.style.display = 'flex';
         startTokenRefresh();
         showSection('manage-staff-section');
@@ -141,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             await fetchStaff();
         }
+        await fetchImportantInfo();
     };
 
     const logout = async () => {
@@ -361,10 +368,142 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- GESTIÓN DE DEPARTAMENTOS ---
+
+    const renderDepartments = (departments) => {
+        departmentListDiv.innerHTML = '';
+        if (!departments || departments.length === 0) {
+            departmentListDiv.innerHTML = '<p>No hay departamentos para mostrar.</p>';
+            return;
+        }
+
+        const listHtml = departments.map(dep => `
+            <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                <span>${escapeHTML(dep.name)}</span>
+                <button class="btn btn-sm btn-outline-danger delete-department-btn" data-id="${dep.id}">Eliminar</button>
+            </div>
+        `).join('');
+        departmentListDiv.innerHTML = listHtml;
+    };
+
+    const fetchDepartments = async () => {
+        try {
+            const response = await apiFetch(API_URLS.DEPARTMENTS);
+            const departments = await response.json();
+            renderDepartments(departments);
+        } catch (error) {
+            handleApiError(error, 'obtener los departamentos');
+        }
+    };
+
+    // --- GESTIÓN DE INFORMACIÓN IMPORTANTE ---
+
+    const renderImportantInfo = (data) => {
+        importantInfoListDiv.innerHTML = '';
+        if (!data || data.length === 0) {
+            importantInfoListDiv.innerHTML = '<p>No hay información importante para mostrar.</p>';
+            return;
+        }
+
+        const listHtml = data.map(info => `
+            <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                <span>${escapeHTML(info.title)}</span>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary edit-info-btn" data-id="${info.id}">Editar</button>
+                    <button class="btn btn-sm btn-outline-danger delete-info-btn" data-id="${info.id}">Eliminar</button>
+                </div>
+            </div>
+        `).join('');
+        importantInfoListDiv.innerHTML = listHtml;
+    };
+
+    const fetchImportantInfo = async () => {
+        try {
+            const response = await apiFetch(API_URLS.IMPORTANT_INFO);
+            importantInfoData = await response.json();
+            renderImportantInfo(importantInfoData);
+        } catch (error) {
+            handleApiError(error, 'obtener la información importante');
+        }
+    };
+
+    const handleImportantInfoFormSubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('important-info-id').value;
+        const title = document.getElementById('info-title').value;
+        const extension = document.getElementById('info-extension').value;
+        const content = document.getElementById('info-content').value;
+
+        const url = id ? `${API_URLS.IMPORTANT_INFO}/${id}` : API_URLS.IMPORTANT_INFO;
+        const method = id ? 'PUT' : 'POST';
+
+        try {
+            await apiFetch(url, {
+                method: method,
+                body: JSON.stringify({ title, extension, content }),
+            });
+            importantInfoForm.reset();
+            document.getElementById('important-info-id').value = '';
+            await fetchImportantInfo();
+        } catch (error) {
+            handleApiError(error, 'guardar la información importante');
+            alert(`Error al guardar: ${error.message}`);
+        }
+    };
+
+    const addDepartment = async (departmentName) => {
+        try {
+            await apiFetch(API_URLS.DEPARTMENTS, {
+                method: 'POST',
+                body: JSON.stringify({ name: departmentName })
+            });
+            await fetchDepartments();
+        } catch (error) {
+            handleApiError(error, 'agregar el departamento');
+            alert(`Error al agregar: ${error.message}`);
+        }
+    };
+
+    const deleteDepartment = async (id) => {
+        try {
+            await apiFetch(`${API_URLS.DEPARTMENTS}/${id}`, { method: 'DELETE' });
+            await fetchDepartments();
+        } catch (error) {
+            handleApiError(error, 'eliminar el departamento');
+            alert(`Error al eliminar: ${error.message}`);
+        }
+    };
+
+    document.getElementById('add-department-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const departmentNameInput = document.getElementById('department-name');
+        const departmentName = departmentNameInput.value.trim();
+        if (departmentName) {
+            await addDepartment(departmentName);
+            departmentNameInput.value = '';
+        }
+    });
+
+    departmentListDiv.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-department-btn')) {
+            const departmentId = e.target.dataset.id;
+            if (confirm('¿Estás seguro de que quieres eliminar este departamento?')) {
+                deleteDepartment(departmentId);
+            }
+        }
+    });
+
     // --- INICIALIZACIÓN ---
+    document.getElementById('add-staff-btn').addEventListener('click', () => {
+        staffForm.reset();
+        document.getElementById('staff-id').value = '';
+        document.getElementById('staffModalLabel').textContent = 'Agregar Nuevo Personal';
+        staffModal.show();
+    });
     loginForm.addEventListener('submit', handleLoginFormSubmit);
     staffForm.addEventListener('submit', handleStaffFormSubmit);
     logoutBtn.addEventListener('click', logout);
+    importantInfoForm.addEventListener('submit', handleImportantInfoFormSubmit);
 
     checkAuth();
 });
