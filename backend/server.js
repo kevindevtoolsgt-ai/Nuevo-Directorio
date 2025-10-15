@@ -506,6 +506,7 @@ app.get('/api/login-check', authenticateToken, async (req, res) => {
                     LEFT JOIN Puestos pu ON per.puesto_id = pu.id
                     LEFT JOIN Departments dep ON pu.department_id = dep.id
                 `);
+                result.recordset.sort((a, b) => a.nombre.localeCompare(b.nombre));
                 res.json(result.recordset);
             } catch (err) {
                 logger.error('Error obteniendo personal:', err);
@@ -898,7 +899,7 @@ app.get('/api/login-check', authenticateToken, async (req, res) => {
          */
         app.get('/api/users', authenticateToken, authorize(['admin']), async (req, res) => {
             try {
-                const result = await getPool().request().query('SELECT id, username, role FROM Users');
+                const result = await getPool().request().query('SELECT id, username, role FROM Users ORDER BY username');
                 res.json(result.recordset);
             } catch (err) {
                 logger.error('Error obteniendo usuarios:', err);
@@ -968,6 +969,7 @@ app.get('/api/login-check', authenticateToken, async (req, res) => {
                         LEFT JOIN Departments d ON p.department_id = d.id
                         WHERE p_ext.extension_id = e.id
                     ) AS personal_info
+                    ORDER BY CAST(e.number AS INT)
                 `);
                 res.json(result.recordset);
             } catch (err) {

@@ -64,24 +64,24 @@
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
                     <a href="#" id="nav-manage-staff" class="nav-link active">Gestionar Personal</a>
-                </li>
+                </li>                
                 <li class="nav-item">
-                    <a href="#" id="nav-manage-users" class="nav-link">Gestionar Usuarios</a>
+                    <a href="#" id="nav-bulk-upload" class="nav-link">Carga Masiva</a>
                 </li>
                 <li class="nav-item">
                     <a href="#" id="nav-manage-departments" class="nav-link">Gestionar Departamentos</a>
                 </li>
                 <li class="nav-item">
                     <a href="#" id="nav-manage-puestos" class="nav-link">Gestionar Puestos</a>
-                </li>
+                </li>                
                 <li class="nav-item">
                     <a href="#" id="nav-manage-extensions" class="nav-link">Gestionar Extensiones</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" id="nav-bulk-upload" class="nav-link">Carga Masiva</a>
+                    <a href="#" id="nav-manage-important-info" class="nav-link">Información Importante</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" id="nav-manage-important-info" class="nav-link">Información Importante</a>
+                    <a href="#" id="nav-manage-users" class="nav-link">Gestionar Usuarios</a>
                 </li>
                 <li class="nav-item">
                     <a href="#" id="nav-appearance" class="nav-link">Apariencia</a>
@@ -166,17 +166,21 @@
                             <p id="department-message" class="mt-2"></p>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-header">Departamentos Existentes</div>
-                        <div class="card-body" id="department-list">
-                            <!-- La lista de departamentos se renderiza aquí. -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Departamentos Existentes</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="department-list" class="table-responsive">
+                                <!-- La tabla de departamentos se renderiza aquí. -->
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- Sección: Gestionar Puestos -->
                 <section id="manage-puestos-section" class="content-section" style="display: none;">
-                    <h2>Gestionar Puestos</h2>
+                    <h2 class="mb-4">Gestionar Puestos</h2>
                     <div class="card mb-4">
                         <div class="card-header">Agregar Nuevo Puesto</div>
                         <div class="card-body">
@@ -196,17 +200,21 @@
                             </form>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-header">Puestos Existentes</div>
-                        <div class="card-body" id="puesto-list">
-                            <!-- La lista de puestos se renderiza aquí -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Puestos Existentes</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="puesto-list" class="table-responsive">
+                                <!-- La tabla de puestos se renderiza aquí -->
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- Sección: Gestionar Extensiones -->
                 <section id="manage-extensions-section" class="content-section" style="display: none;">
-                    <h2>Gestionar Extensiones Telefónicas</h2>
+                    <h2 class="mb-4">Gestionar Extensiones Telefónicas</h2>
                     <div class="card mb-4">
                         <div class="card-header">Agregar Nueva Extensión</div>
                         <div class="card-body">
@@ -244,16 +252,20 @@
                             </form>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-header">Extensiones Existentes</div>
-                        <div class="card-body" id="extension-list">
-                            <!-- La lista de extensiones se renderiza aquí. -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Extensiones Existentes</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="extension-list" class="table-responsive">
+                                <!-- La tabla de extensiones se renderiza aquí. -->
+                            </div>
                         </div>
                     </div>
                 </section>
                 <!-- Sección: Carga Masiva -->
                 <section id="bulk-upload-section" class="content-section" style="display: none;">
-                    <h2>Carga Masiva de Personal</h2>
+                    <h2 class="mb-4">Carga Masiva de Personal</h2>
                     <div class="card">
                         <div class="card-body">
                             <form id="bulk-upload-form">
@@ -274,7 +286,7 @@
 
                 <!-- Sección: Gestionar Información Importante -->
                 <section id="manage-important-info-section" class="content-section" style="display: none;">
-                    <h2>Gestionar Información Importante</h2>
+                    <h2 class="mb-4">Gestionar Información Importante</h2>
                     <div class="card mb-4">
                         <div class="card-header">Agregar/Editar Información Importante</div>
                         <div class="card-body">
@@ -300,16 +312,20 @@
                             <p id="important-info-message" class="mt-3"></p>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-header">Información Existente</div>
-                        <div class="card-body" id="important-info-list">
-                            <!-- La lista de información importante se renderiza aquí. -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Información Existente</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="important-info-list" class="table-responsive">
+                                <!-- La tabla de información importante se renderiza aquí. -->
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- Sección: Apariencia -->
-                <section id="appearance-section" class="content-section" style="display: none;">
+                <section id="appearance-section" class="content-section" style="display: none;" >
                     <h2>Apariencia</h2>
                     <div class="card">
                         <div class="card-body">

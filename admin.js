@@ -586,22 +586,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderPuestos = (puestos) => {
         puestoListDiv.innerHTML = '';
         if (!puestos || puestos.length === 0) {
-            puestoListDiv.innerHTML = '<p>No hay puestos para mostrar.</p>';
+            puestoListDiv.innerHTML = '<p class="text-center p-3">No hay puestos para mostrar.</p>';
             return;
         }
-        const listHtml = puestos.map(p => `
-            <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
-                <div>
-                    <strong>${escapeHTML(p.name)}</strong> (${escapeHTML(p.department_name)})
-                    <small class="text-muted ms-2">
-                        Ext: ${p.extension_number || 'N/A'} | 
-                        Ocupado por: ${p.personal_name ? `<strong>${escapeHTML(p.personal_name)}</strong>` : 'Nadie'}
-                    </small>
-                </div>
-                <button class="btn btn-sm btn-outline-danger delete-puesto-btn" data-id="${p.id}" ${p.personal_name ? 'disabled' : ''}>Eliminar</button>
-            </div>
-        `).join('');
-        puestoListDiv.innerHTML = listHtml;
+        const tableHtml = `
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Puesto</th>
+                        <th>Departamento</th>
+                        <th>Extensión(es)</th>
+                        <th>Ocupado por</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${puestos.map(p => `
+                        <tr>
+                            <td><strong>${escapeHTML(p.name)}</strong></td>
+                            <td>${escapeHTML(p.department_name)}</td>
+                            <td>${p.extension_number || 'N/A'}</td>
+                            <td>${p.personal_name ? escapeHTML(p.personal_name) : '<span class="text-muted">Vacante</span>'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger delete-puesto-btn" data-id="${p.id}" ${p.personal_name ? 'disabled' : ''} title="${p.personal_name ? 'No se puede eliminar un puesto ocupado' : 'Eliminar puesto'}">Eliminar</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        puestoListDiv.innerHTML = tableHtml;
     };
 
     const fetchPuestos = async () => {
@@ -657,38 +671,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderExtensions = (extensions) => {
         extensionListDiv.innerHTML = '';
         if (!extensions || extensions.length === 0) {
-            extensionListDiv.innerHTML = '<p>No hay extensiones para mostrar.</p>';
+            extensionListDiv.innerHTML = '<p class="text-center p-3">No hay extensiones para mostrar.</p>';
             return;
         }
 
-        const listHtml = extensions.map(ext => {
-            let statusHtml;
-            const isOccupied = ext.puesto_name || ext.personal_name;
-            const departmentBadge = ext.department_name ? `<span class="badge bg-secondary ms-2">${escapeHTML(ext.department_name)}</span>` : '';
+        const tableHtml = `
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                        <th>Departamento</th>
+                        <th>Estado</th>
+                        <th>Ocupado por</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${extensions.map(ext => {
+                        const isOccupied = ext.puesto_name || ext.personal_name;
+                        const statusBadge = isOccupied ? '<span class="badge bg-warning text-dark">Ocupada</span>' : '<span class="badge bg-success">Disponible</span>';
+                        const occupier = ext.puesto_name ? `Puesto: ${escapeHTML(ext.puesto_name)}` : (ext.personal_name ? `Persona: ${escapeHTML(ext.personal_name)}` : '<span class="text-muted">N/A</span>');
 
-            if (isOccupied) {
-                if (ext.puesto_name) {
-                    statusHtml = `<span class="badge bg-warning text-dark">Ocupada</span> <small class="text-muted ms-2">Puesto: <strong>${escapeHTML(ext.puesto_name)}</strong></small>`;
-                } else if (ext.personal_name) { // ext.personal_name ahora puede ser una lista de nombres
-                    statusHtml = `<span class="badge bg-warning text-dark">Ocupada</span> <small class="text-muted ms-2">Persona(s): <strong>${escapeHTML(ext.personal_name)}</strong></small>`;
-                } else {
-                    statusHtml = `<span class="badge bg-danger">Ocupada</span> <small class="text-danger ms-2">Asignación inconsistente</small>`;
-                }
-            } else {
-                statusHtml = `<span class="badge bg-success">Disponible</span>`;
-            }
-
-            return `
-                <div class="d-flex justify-content-between align-items-center p-2 border-bottom ${isOccupied ? 'extension-occupied' : 'extension-available'}">
-                    <div>
-                        <strong>${escapeHTML(ext.number)}</strong>
-                        ${statusHtml}
-                    </div>
-                    <button class="btn btn-sm btn-outline-danger delete-extension-btn" data-id="${ext.id}" ${isOccupied ? 'disabled' : ''} title="${isOccupied ? 'No se puede eliminar una extensión en uso' : 'Eliminar extensión'}">Eliminar</button>
-                </div>
-            `;
-        }).join('');
-        extensionListDiv.innerHTML = listHtml;
+                        return `
+                            <tr>
+                                <td><strong>${escapeHTML(ext.number)}</strong></td>
+                                <td>${escapeHTML(ext.department_name) || '<span class="text-muted">Global</span>'}</td>
+                                <td>${statusBadge}</td>
+                                <td>${occupier}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger delete-extension-btn" data-id="${ext.id}" ${isOccupied ? 'disabled' : ''} title="${isOccupied ? 'No se puede eliminar una extensión en uso' : 'Eliminar extensión'}">Eliminar</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+        extensionListDiv.innerHTML = tableHtml;
     };
 
     const fetchExtensions = async () => {
@@ -931,17 +950,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderDepartments = (departments) => {
         departmentListDiv.innerHTML = '';
         if (!departments || departments.length === 0) {
-            departmentListDiv.innerHTML = '<p>No hay departamentos para mostrar.</p>';
+            departmentListDiv.innerHTML = '<p class="text-center p-3">No hay departamentos para mostrar.</p>';
             return;
         }
 
-        const listHtml = departments.map(dep => `
-            <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
-                <span>${escapeHTML(dep.name)}</span>
-                <button class="btn btn-sm btn-outline-danger delete-department-btn" data-id="${dep.id}">Eliminar</button>
-            </div>
-        `).join('');
-        departmentListDiv.innerHTML = listHtml;
+        const tableHtml = `
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre del Departamento</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${departments.map(dep => `
+                        <tr>
+                            <td>${escapeHTML(dep.name)}</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-danger delete-department-btn" data-id="${dep.id}">Eliminar</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        departmentListDiv.innerHTML = tableHtml;
     };
 
     const fetchDepartments = async () => {
@@ -959,20 +992,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderImportantInfo = (data) => {
         importantInfoListDiv.innerHTML = '';
         if (!data || data.length === 0) {
-            importantInfoListDiv.innerHTML = '<p>No hay información importante para mostrar.</p>';
+            importantInfoListDiv.innerHTML = '<p class="text-center p-3">No hay información importante para mostrar.</p>';
             return;
         }
 
-        const listHtml = data.map(info => `
-            <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
-                <span>${escapeHTML(info.title)}</span>
-                <div>
-                    <button class="btn btn-sm btn-outline-primary edit-info-btn" data-id="${info.id}">Editar</button>
-                    <button class="btn btn-sm btn-outline-danger delete-info-btn" data-id="${info.id}">Eliminar</button>
-                </div>
-            </div>
-        `).join('');
-        importantInfoListDiv.innerHTML = listHtml;
+        const tableHtml = `
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Extensión</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.map(info => `
+                        <tr>
+                            <td>${escapeHTML(info.title)}</td>
+                            <td>${escapeHTML(info.extension) || '<span class="text-muted">N/A</span>'}</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary edit-info-btn" data-id="${info.id}">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger delete-info-btn ms-2" data-id="${info.id}">Eliminar</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        importantInfoListDiv.innerHTML = tableHtml;
     };
 
     const fetchImportantInfo = async () => {
