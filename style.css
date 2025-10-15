@@ -344,10 +344,14 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%; /* Make sure the table takes full width of its container */
 }
 
-.list-view .table th,
 .list-view .table td {
     word-break: break-word; /* Allow long words to break and wrap */
     white-space: normal; /* Ensure text wraps naturally within cells */
+}
+
+.list-view .table th {
+    white-space: nowrap; /* Evita que los encabezados se dividan en varias líneas */
+    vertical-align: middle;
 }
 
 .list-view .table th:nth-child(1),

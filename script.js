@@ -174,11 +174,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <table class="table table-hover align-middle custom-table">
                     <thead class="table-light">
                         <tr>
-                            <th>Foto</th>
+                            <th></th>
                             <th>Nombre</th>
                             <th>Puesto</th>
                             <th>Departamento</th>
-                            <th>Extensión</th>
+                            <th>Extensión </th>
                             <th>Correo</th>
                             <th>Acción</th>
                         </tr>

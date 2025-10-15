@@ -38,10 +38,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       "script-src-elem": ["'self'", "https://cdn.socket.io", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      "connect-src": ["'self'", "ws://*:*"], // Permite conexiones al propio origen y a cualquier WebSocket
       "worker-src": ["'self'", "blob:"],
       "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
       "style-src-elem": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
       "font-src": ["'self'", "https://fonts.gstatic.com"],
+      "upgrade-insecure-requests": null, // Desactivar la actualización a HTTPS
     },
   },
 }));
