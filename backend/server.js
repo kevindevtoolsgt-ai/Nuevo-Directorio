@@ -415,36 +415,19 @@ app.get('/api/login-check', authenticateToken, async (req, res) => {
          * Busca personal por término de búsqueda en varios campos.
          */
         app.get('/api/public/personal/search', async (req, res) => {
+            // La función searchPublicStaff ya está en db.js y maneja la lógica
+            // de búsqueda insensible a tildes y mayúsculas.
+            const { searchPublicStaff } = require('./db');
+
             try {
                 const searchTerm = req.query.q;
                 if (!searchTerm) {
                     return res.status(400).json({ message: 'El término de búsqueda (q) es requerido.' });
                 }
-
-                const searchPattern = `%${searchTerm}%`; // For partial, case-insensitive matching
-
-                const result = await getPool().request()
-                    .input('searchPattern', sql.NVarChar, searchPattern)
-                    .query(`
-                    SELECT 
-                        per.id, per.nombre, per.correo, per.descripcion, per.fotoUrl, per.en_carrusel, per.fecha_nacimiento,
-                        pu.name as puesto,
-                        dep.name as departamento,
-                        COALESCE(
-                            (SELECT STRING_AGG(e.number, ', ') FROM PersonalExtension p_ext JOIN Extensions e ON p_ext.extension_id = e.id WHERE p_ext.personal_id = per.id),
-                            (SELECT STRING_AGG(e.number, ', ') FROM PuestoExtension pu_ext JOIN Extensions e ON pu_ext.extension_id = e.id WHERE pu_ext.puesto_id = pu.id)
-                        ) as extension
-                    FROM Personal per 
-                    LEFT JOIN Puestos pu ON per.puesto_id = pu.id
-                    LEFT JOIN Departments dep ON pu.department_id = dep.id
-                    WHERE 
-                        per.nombre LIKE @searchPattern OR 
-                        pu.name LIKE @searchPattern OR
-                        dep.name LIKE @searchPattern OR 
-                        per.correo LIKE @searchPattern OR
-                        EXISTS (SELECT 1 FROM PuestoExtension pe JOIN Extensions e ON pe.extension_id = e.id WHERE pe.puesto_id = pu.id AND e.number LIKE @searchPattern)
-                    ORDER BY per.nombre;`);
-                res.json(result.recordset);
+                
+                // El frontend ya envía el término normalizado (sin tildes, en minúsculas)
+                const results = await searchPublicStaff(searchTerm);
+                res.json(results);
             } catch (err) {
                 logger.error('Error buscando personal:', err);
                 res.status(500).json({ message: 'Error interno del servidor al buscar personal.' });
@@ -609,17 +592,17 @@ app.get('/api/login-check', authenticateToken, async (req, res) => {
                     fotoUrl = null; // Se quiere eliminar la foto sin reemplazarla.
                 } else {
                     // Si no se proporciona ni archivo ni 'fotoUrl', mantener la foto actual
-                    fotoUrl = currentData.fotoUrl;
+                    fotoUrl = req.body.fotoUrl !== undefined ? req.body.fotoUrl : currentData.fotoUrl;
                 }
 
                 // 3. Fusionar los datos de forma segura.
                 const updatedData = Object.assign({}, currentData, {
                     nombre: req.body.nombre,
-                    correo: req.body.correo,
+                    correo: req.body.correo, // <-- CORRECCIÓN: Usar el valor del body, no el de la variable
                     descripcion: req.body.descripcion,
                     fotoUrl: fotoUrl, // Usar la fotoUrl ya procesada
                     en_carrusel: showInCarousel !== undefined ? (showInCarousel === '1' ? 1 : 0) : currentData.en_carrusel,
-                    fecha_nacimiento: fecha_nacimiento !== undefined ? (fecha_nacimiento || null) : currentData.fecha_nacimiento,
+                    fecha_nacimiento: fecha_nacimiento !== undefined ? (fecha_nacimiento || null) : currentData.fecha_nacimiento, // Si la fecha está vacía, se convierte en null
                     puesto_id: puesto_id !== undefined ? (puesto_id || null) : currentData.puesto_id,
                 });
                 
@@ -829,8 +812,8 @@ app.get('/api/login-check', authenticateToken, async (req, res) => {
                                             .input('en_carrusel_merge', sql.Bit, enCarruselBit)
                                             .input('fecha_nacimiento_merge', sql.Date, fechaNacimientoDate)
                                             .query(`
-                                                MERGE Personal AS target USING (VALUES (@correo_merge)) AS source (correo) ON target.correo = source.correo
-                                                WHEN MATCHED THEN UPDATE SET nombre = @nombre_merge, puesto_id = @puesto_id_merge, descripcion = @descripcion_merge, fotoUrl = @fotoUrl_merge, en_carrusel = @en_carrusel_merge, fecha_nacimiento = @fecha_nacimiento_merge
+                                                MERGE Personal AS target USING (VALUES (@nombre_merge)) AS source (nombre) ON target.nombre = source.nombre
+                                                WHEN MATCHED THEN UPDATE SET correo = @correo_merge, puesto_id = @puesto_id_merge, descripcion = @descripcion_merge, fotoUrl = @fotoUrl_merge, en_carrusel = @en_carrusel_merge, fecha_nacimiento = @fecha_nacimiento_merge
                                                 WHEN NOT MATCHED THEN INSERT (nombre, correo, puesto_id, descripcion, fotoUrl, en_carrusel, fecha_nacimiento) VALUES (@nombre_merge, @correo_merge, @puesto_id_merge, @descripcion_merge, @fotoUrl_merge, @en_carrusel_merge, @fecha_nacimiento_merge)
                                                 OUTPUT INSERTED.id;
                                             `);
@@ -849,16 +832,19 @@ app.get('/api/login-check', authenticateToken, async (req, res) => {
                                     }
                                 }
         
+                                // --- LÓGICA MEJORADA: Commit de registros exitosos, rollback de errores individuales ---
+                                // En lugar de un rollback total, hemos manejado los errores por fila.
+                                // Ahora hacemos commit de todos los cambios que sí fueron exitosos.
+                                await transaction.commit();
+
+                                // Construir el mensaje de respuesta final
+                                let responseMessage = `Carga completada. ${successfulInserts} registros procesados exitosamente.`;
                                 if (failedRows > 0) {
-                                    await transaction.rollback();
-                                    // Rechazar la promesa con un error que contiene los detalles
-                                    reject({ message: `Se encontraron ${failedRows} errores. Ningún registro fue guardado.`, errors });
-                                } else {
-                                    await transaction.commit();
-                                    // Resolver la promesa con el mensaje de éxito
-                                    resolve({ message: `Carga masiva completada. ${successfulInserts} registros procesados.` });
+                                    responseMessage += ` ${failedRows} registros fallaron.`;
                                 }
+                                resolve({ message: responseMessage, errors });
                             } catch (processError) {
+                                if (transaction.active) await transaction.rollback(); // Asegurarse de hacer rollback en caso de un error inesperado
                                 reject(processError); // Rechazar la promesa si hay un error general
                             }
                         });

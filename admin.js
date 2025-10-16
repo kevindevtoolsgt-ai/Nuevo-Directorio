@@ -354,10 +354,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // La extensión personal se maneja en una llamada separada, la eliminamos del formulario principal.
         formData.delete('personal_extension_id');
  
-        // Si la fecha de nacimiento está vacía, la eliminamos del FormData para que el backend no intente procesar una cadena vacía.
-        const rawDate = formData.get('fecha_nacimiento');
-        if (!rawDate) {
-            formData.delete('fecha_nacimiento');
+        // Si la fecha de nacimiento está vacía, nos aseguramos de que se envíe como una cadena vacía.
+        if (!formData.has('fecha_nacimiento')) {
+            formData.set('fecha_nacimiento', '');
         }
  
         // --- MANEJO DE LA EXTENSIÓN INDIVIDUAL ---
@@ -1238,6 +1237,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- SOCKET.IO PARA ACTUALIZACIONES EN TIEMPO REAL ---
+
+    const setupSocketIO = () => {
+        try {
+            const socket = io(BASE_URL);
+
+            socket.on('connect', () => {
+                console.log('Conectado al servidor de Socket.IO desde el panel de admin.');
+            });
+
+            // Escuchar actualizaciones de personal y refrescar la lista
+            socket.on('staffUpdate', () => {
+                console.log('Actualización de personal recibida. Refrescando lista de personal...');
+                fetchStaff();
+            });
+
+            // Podríamos añadir más listeners aquí para otras secciones si fuera necesario
+            // ej. socket.on('departmentUpdate', fetchDepartments);
+
+        } catch (error) {
+            console.error("Error de conexión con Socket.IO en el panel de admin.", error);
+        }
+    };
+
+
     // --- INICIALIZACIÓN ---
     document.getElementById('add-staff-btn').addEventListener('click', () => {
         staffForm.reset();
@@ -1273,4 +1297,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carga inicial de datos y comprobación de sesión
     checkAuth();
+    setupSocketIO(); // <-- AÑADIDO: Iniciar la escucha de eventos en tiempo real
 });

@@ -377,10 +377,59 @@ async function deleteImportantInfo(id) {
 }
 
 /**
+ * Busca personal en la base de datos para la vista pública.
+ * La búsqueda es insensible a mayúsculas/minúsculas y a tildes.
+ * @param {string} searchTerm - El término de búsqueda normalizado (sin tildes, en minúsculas).
+ * @returns {Promise<Array>} - Una lista de personal que coincide con la búsqueda.
+ */
+async function searchPublicStaff(searchTerm) {
+    try {
+        const request = getPool().request();
+        // El término de búsqueda ya viene normalizado desde el frontend.
+        // Añadimos '%' para que funcione como un 'contains'.
+        const likeTerm = `%${searchTerm}%`;
+
+        // Usamos COLLATE Latin1_General_CI_AI para que la comparación sea
+        // Case-Insensitive (CI) y Accent-Insensitive (AI).
+        const query = `
+            SELECT 
+                p.id, p.nombre, p.correo, p.fotoUrl, p.fecha_nacimiento,
+                puesto.name AS puesto,
+                depto.name AS departamento, 
+                COALESCE(
+                    (SELECT STRING_AGG(e.number, ', ') FROM PersonalExtension p_ext JOIN Extensions e ON p_ext.extension_id = e.id WHERE p_ext.personal_id = p.id),
+                    (SELECT STRING_AGG(e.number, ', ') FROM PuestoExtension pu_ext JOIN Extensions e ON pu_ext.extension_id = e.id WHERE pu_ext.puesto_id = p.puesto_id)
+                ) as extension
+            FROM Personal p
+            LEFT JOIN Puestos puesto ON p.puesto_id = puesto.id
+            LEFT JOIN Departments depto ON puesto.department_id = depto.id
+            WHERE 
+                (p.nombre COLLATE Latin1_General_CI_AI LIKE @likeTerm) OR
+                (puesto.name COLLATE Latin1_General_CI_AI LIKE @likeTerm) OR
+                (depto.name COLLATE Latin1_General_CI_AI LIKE @likeTerm) OR
+                (p.correo COLLATE Latin1_General_CI_AI LIKE @likeTerm) OR
+                EXISTS (
+                    SELECT 1 FROM PuestoExtension pe JOIN Extensions e ON pe.extension_id = e.id 
+                    WHERE pe.puesto_id = p.puesto_id AND e.number LIKE @likeTerm
+                ) OR
+                EXISTS (
+                    SELECT 1 FROM PersonalExtension p_ext JOIN Extensions e ON p_ext.extension_id = e.id 
+                    WHERE p_ext.personal_id = p.id AND e.number LIKE @likeTerm
+                )
+        `;
+
+        const result = await request.input('likeTerm', sql.NVarChar, likeTerm).query(query);
+        return result.recordset;
+    } catch (err) {
+        console.error('Error al buscar personal:', err);
+        throw err;
+    }
+}
+
+/**
  * Devuelve la instancia del pool de conexiones.
  * Es una función getter para acceder al pool desde otros módulos
  * sin exponer la variable `pool` directamente.
- * a la base de datos y ejecutar consultas.
  */
 const getPool = () => pool;
 
@@ -389,4 +438,4 @@ const getPool = () => pool;
  * Esto permite que otros archivos (como server.js) puedan usar la conexión
  * a la base de datos y ejecutar consultas.
  */
-module.exports = { connect, close, sql, getPool, getImportantInfo, getImportantInfoById, addImportantInfo, updateImportantInfo, deleteImportantInfo };
+module.exports = { connect, close, sql, getPool, getImportantInfo, getImportantInfoById, addImportantInfo, updateImportantInfo, deleteImportantInfo, searchPublicStaff };

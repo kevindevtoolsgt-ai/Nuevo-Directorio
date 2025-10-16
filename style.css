@@ -43,6 +43,28 @@ body.dark-theme {
     --border-color: #495057;
 }
 
+/* Tema Navideño */
+body.christmas-theme {
+    --primary-color: #e53935; /* Un rojo navideño brillante */
+    --secondary-color: #b0bec5;
+    --background-color: #0d47a1; /* Azul oscuro de noche */
+    --surface-color: #155db1; /* Un azul un poco más claro para las tarjetas */
+    --text-color: #ffffff; /* Texto blanco para contraste */
+    --border-color: #1e88e5;
+    /* Patrón de nieve sutil para el fondo */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Estilo específico para tarjetas en tema navideño */
+body.christmas-theme .card {
+    background-color: #e0e0e0; /* Un gris claro invernal */
+    color: #333; /* Texto oscuro para contraste */
+}
+
+body.christmas-theme .card .card-title {
+    color: var(--primary-color); /* Título en rojo navideño */
+}
+
 /* ==========================================
    2. ESTILOS GENERALES Y TIPOGRAFÍA
    ========================================== */
@@ -125,10 +147,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .header-image {
     position: absolute;
-    bottom: 5px;
-    right: 0%;
-    transform: translateY(50%);
-    z-index: -0;
+    bottom: 0;
+    right: 2%; /* Un pequeño margen a la derecha */
+    max-height: 100%; /* La imagen no será más alta que el header */
+    width: auto; /* Mantiene la proporción */
+    object-fit: contain; /* Asegura que la imagen se escale correctamente sin deformarse */
+    z-index: 0; /* Se mantiene detrás del contenido si es necesario */
+    pointer-events: none; /* Evita que la imagen intercepte clics */
 }
 
 /* --- Carrusel y Bienvenida --- */
@@ -282,11 +307,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- Cumpleaños --- */
 .birthday-container-full-width {
-    background-color: var(--accent-yellow);
+    background-color: var(--secondary-color); /* Cambiado a un gris discreto */
     height: 25px; /* Altura fija para la barra. ¡Puedes ajustar este valor! */
     display: flex; /* Habilita flexbox para centrar verticalmente */
     align-items: center; /* Centra el contenido verticalmente */
-    color: #000;
+    color: #fff; /* Cambiado a blanco para mejor contraste */
     overflow: hidden; /* Ocultamos el desbordamiento para la animación */
     position: relative;
     white-space: nowrap; /* Evita que el texto se divida en varias líneas */
@@ -296,8 +321,7 @@ h1, h2, h3, h4, h5, h6 {
     transition: opacity 0.5s ease-in-out; /* Transición suave para la opacidad */
     /* Bordes y sombra para un mejor diseño */
     /*border-top: 3px solid #000;
-    border-bottom: 3px solid #000;*/
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1), 0 5px 25px 0 rgba(var(--bs-primary-rgb), 0.9);
+    border-bottom: 3px solid #000;*/    
     margin-top: -5px; /* Sube el contenedor para reducir el espacio superior */
 }
 
@@ -384,6 +408,12 @@ h1, h2, h3, h4, h5, h6 {
     min-width: 200px; /* Correo column */
 }
 
+/* Asegurar que la columna de correo no se divida en varias líneas */
+.list-view .table td:nth-child(6) {
+    white-space: nowrap;
+}
+
+
 .birthday-person {
     background-color: #ffe0e0; /* Light pink for birthday persons */
 }
@@ -404,7 +434,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- Dashboard --- */
 #admin-dashboard {
-    display: none; /* Oculto por defecto */
+    display: none;
     flex-direction: row;
     min-height: 100vh;
     width: 100%;
@@ -412,44 +442,57 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- Sidebar --- */
 #sidebar {
-    width: 260px;
-    background: linear-gradient(180deg, #2c3e50, #34495e);
-    color: #fff;
-    box-shadow: 5px 0px 15px rgba(0,0,0,0.1);
-    -webkit-transition: width 0.3s ease;
-    -moz-transition: width 0.3s ease;
+    width: 250px;
+    background-color: var(--surface-color); /* Fondo blanco */
+    border-right: 1px solid var(--border-color); /* Borde sutil para separar */
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
     transition: width 0.3s ease;
 }
 
 #sidebar .sidebar-header {
-    border-bottom: 1px solid #4f6a85;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#sidebar .sidebar-header .h4 {
+    color: var(--primary-color); /* Título con el color de la marca */
+    font-weight: 700;
 }
 
 #sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.8);
+    color: #495057; /* Color de texto más oscuro y legible */
+    font-weight: 500;
     border-radius: 0.5rem;
     margin: 0.25rem 0;
-    -webkit-transition: background-color 0.2s ease, color 0.2s ease;
-    -moz-transition: background-color 0.2s ease, color 0.2s ease;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 #sidebar .nav-link:hover {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: rgba(var(--bs-primary-rgb), 0.08); /* Un fondo rojo muy sutil */
+    color: var(--primary-color);
 }
 
 #sidebar .nav-link.active {
     background-color: var(--primary-color);
     color: #fff;
     font-weight: 500;
+    box-shadow: 0 2px 5px rgba(var(--bs-primary-rgb), 0.3);
+}
+
+#sidebar .sidebar-footer .btn-danger {
+    background-color: #6c757d; /* Botón de logout más discreto */
+    border-color: #6c757d;
+}
+
+#sidebar .sidebar-footer .btn-danger:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
 /* --- Main Content --- */
 #main-content-area {
     flex-grow: 1;
     overflow-y: auto;
-    background-color: var(--background-color);
+    background-color: #f4f7f9; /* Un gris azulado muy claro */
     padding: 2rem;
 }
 
@@ -570,6 +613,19 @@ h1, h2, h3, h4, h5, h6 {
     -ms-transform: translateY(-2px);
     transform: translateY(-2px);
 }
+
+/* --- Ajuste para botones de vista (Cuadrícula/Lista) --- */
+.btn-outline-primary {
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
 
 /* ==========================================
    6. CLASES DE UTILIDAD PARA ANIMACIONES
@@ -753,13 +809,109 @@ h1, h2, h3, h4, h5, h6 {
     background-color: white;
     border-radius: 50%;
     box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff;
-    animation: fall linear infinite;
+    /* La animación se asigna dinámicamente con JS */
 }
 
-@keyframes fall {
-    to {
-        transform: translateY(105vh); /* Cae hasta desaparecer por debajo de la pantalla */
-    }
+/* Animación 1: Caída recta */
+@keyframes fall-straight {
+    to { transform: translateY(105vh); }
+}
+
+/* Animación 2: Caída con balanceo suave */
+@keyframes fall-sway {
+    0% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(50vh) translateX(20px); }
+    100% { transform: translateY(105vh) translateX(-20px); }
+}
+
+/* Animación 3: Caída rápida (para copos más pequeños y lejanos) */
+@keyframes fall-fast {
+    to { transform: translateY(105vh); }
+}
+
+.snowflake.anim-straight { animation: fall-straight linear infinite; }
+.snowflake.anim-sway { animation: fall-sway linear infinite; }
+.snowflake.anim-fast { animation: fall-fast linear infinite; }
+
+/* --- Luces de Navidad --- */
+body.christmas-theme #christmas-lights-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 45px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    z-index: 10;
+    pointer-events: none;
+}
+
+body.christmas-theme .christmas-lights {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: inline-block;
+}
+
+body.christmas-theme .christmas-lights li {
+    position: relative;
+    display: inline-block;
+    width: 14px;
+    height: 28px;
+    border-radius: 50%;
+    margin: 0 15px;
+    background: #fff;
+    animation: blink 1.4s infinite;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Cable de la guirnalda */
+body.christmas-theme .christmas-lights li::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -15px;
+    width: 45px;
+    height: 15px;
+    border-bottom: 2px solid #333;
+    border-radius: 50%;
+}
+
+/* Asignar colores y retrasos de animación */
+body.christmas-theme .christmas-lights li:nth-child(2n) { background: #ff5c5c; animation-delay: 0.2s; }
+body.christmas-theme .christmas-lights li:nth-child(3n) { background: #67ff67; animation-delay: 0.4s; }
+body.christmas-theme .christmas-lights li:nth-child(4n) { background: #5c9cff; animation-delay: 0.6s; }
+body.christmas-theme .christmas-lights li:nth-child(5n) { background: #ffdd5c; animation-delay: 0.8s; }
+body.christmas-theme .christmas-lights li:nth-child(6n) { background: #ff5cae; animation-delay: 1s; }
+
+@keyframes blink {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* --- Estilos para el Nacimiento --- */
+#nativity-scene-img {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    bottom: 0;
+    left: 2%;
+    max-height: 70%; /* Ajusta el tamaño para que sea discreto */
+    width: auto;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 0;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 220, 0.7)); /* Sombra más grande y amarillenta */
+}
+
+body.christmas-theme #nativity-scene-img {
+    display: block; /* Mostrar solo en tema navideño */
+    animation: subtle-glow 3s ease-in-out infinite alternate; /* Animación un poco más rápida */
+}
+
+@keyframes subtle-glow {
+    from { opacity: 0.6; }
+    to { opacity: 1; transform: scale(1.02); } /* Añadimos un ligero zoom */
 }
 
 /* Estilos para la lista de extensiones en admin */

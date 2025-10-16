@@ -1,5 +1,5 @@
 /**
- * script.js (v5.0 - Refactor)
+ * script.js (v5.1 - Búsqueda Mejorada)
  *
  * Maneja la interactividad de la página pública, con paginación del lado del servidor,
  * y animaciones fluidas.
@@ -9,6 +9,12 @@
 import { startSnowEffect, stopSnowEffect } from './snow.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- FUNCIONES DE UTILIDAD ---
+    const normalizeText = (text) => {
+        if (text == null) return '';
+        return text.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    };
 
     // Helper para escapar HTML
     const escapeHTML = (str) => {
@@ -178,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <th>Nombre</th>
                             <th>Puesto</th>
                             <th>Departamento</th>
-                            <th>Extensión </th>
+                            <th>Extensión</th>
                             <th>Correo</th>
                             <th>Acción</th>
                         </tr>
@@ -453,7 +459,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         birthdaySection.style.display = 'block';
         const container = birthdaySection.querySelector('.birthday-list-container');
-        const listContent = birthdayStaff.map(p => `<li class="birthday-item">🙌 ${escapeHTML(p.nombre)} 🎊</li>`).join('');
+        
+        const isChristmasTheme = document.body.classList.contains('christmas-theme');
+        const birthdayEmoji = isChristmasTheme ? '🎁' : '🎊';
+        const listContent = birthdayStaff.map(p => `<li class="birthday-item">🙌 ${escapeHTML(p.nombre)} ${birthdayEmoji}</li>`).join('');
         birthdayList.innerHTML = listContent;
 
         // Defer animation setup to prevent forced layout warning
@@ -495,13 +504,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FILTRADO Y PAGINACIÓN ---
 
+    let debounceTimer;
     const filterAndRender = () => {
-        const searchTerm = searchInput.value.trim(); // Get raw value, trim whitespace
-        if (searchTerm) {
-            fetchStaff(1, ITEMS_PER_PAGE, searchTerm); // Search from page 1
-        } else {
-            fetchStaff(1, ITEMS_PER_PAGE); // If search term is empty, revert to normal pagination
-        }
+        // Limpiar el temporizador anterior
+        clearTimeout(debounceTimer);
+
+        // Establecer un nuevo temporizador
+        debounceTimer = setTimeout(() => {
+            const searchTerm = searchInput.value.trim();
+            // Normalizamos el término de búsqueda para que no distinga tildes ni mayúsculas
+            const normalizedSearchTerm = normalizeText(searchTerm);
+
+            if (normalizedSearchTerm) {
+                // Enviamos el término normalizado al backend
+                fetchStaff(1, ITEMS_PER_PAGE, normalizedSearchTerm);
+            } else {
+                // Si la búsqueda está vacía, volvemos a la vista paginada normal
+                fetchStaff(1, ITEMS_PER_PAGE);
+            }
+        }, 300); // Espera 300ms después de que el usuario deja de escribir
     };
 
     const renderPaginatedDirectory = () => {
@@ -549,21 +570,42 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPaginatedDirectory(); // Re-render with current page data
     };
 
+    const createChristmasLights = () => {
+        const container = document.getElementById('christmas-lights-container');
+        if (!container) return;
+
+        const lightCount = Math.floor(window.innerWidth / 45); // Ajusta el número de luces al ancho de la pantalla
+        const ul = document.createElement('ul');
+        ul.className = 'christmas-lights';
+
+        for (let i = 0; i < lightCount; i++) {
+            const li = document.createElement('li');
+            ul.appendChild(li);
+        }
+        container.innerHTML = ''; // Limpiar por si acaso
+        container.appendChild(ul);
+    };
+
+    const destroyChristmasLights = () => {
+        const container = document.getElementById('christmas-lights-container');
+        if (container) container.innerHTML = '';
+    };
+
     const applyTheme = (theme) => {
         // Lógica para tema oscuro
+        document.body.classList.remove('dark-theme', 'christmas-theme');
         document.body.classList.toggle('dark-theme', theme === 'dark');
 
         // Lógica para el tema navideño (efecto de nieve)
         if (theme === 'christmas') {
+            document.body.classList.add('christmas-theme');
+            createChristmasLights();
             startSnowEffect();
         } else {
+            // No es necesario remover la clase aquí porque ya se hace al inicio de la función.
+            destroyChristmasLights();
             stopSnowEffect();
         }
-    };
-
-    const normalizeText = (text) => {
-        if (text == null) return '';
-        return text.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     };
 
     // --- SOCKET.IO --- 
@@ -664,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const main = async () => {
         initializeEventListeners();
-        setView(localStorage.getItem('directoryView') || 'grid');
+        setView(localStorage.getItem('directoryView') || 'list');
         // Initial fetch now only gets the first page
         await Promise.all([
             fetchBirthdayStaff(),
